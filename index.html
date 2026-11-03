@@ -361,6 +361,11 @@ table.rec td { padding: 10px 6px; border-bottom: 1px solid #f2ede2; }
 .unit-dots i { width: 12px; height: 12px; border-radius: 50%; background: #ece5d4; }
 .unit-dots i.on { background: var(--yellow); box-shadow: 0 1px 0 var(--yellow-d); }
 
+/* 전체화면/노치 화면에서 위아래가 잘리지 않게 */
+#app { padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom); box-sizing: border-box; }
+.topbar { padding-top: max(18px, env(safe-area-inset-top)); }
+.screen { height: 100%; }
+
 </style>
 </head>
 <body>
@@ -657,7 +662,7 @@ self.DIGIT_MODEL={"layers":[{"in":784,"out":256,"scale":0.0058071970000980406,"w
   function defaultState() {
     return {
       version: 1,
-      settings: { lang: 'ko', level: 1, levelTarget: 5, levelBonus: 50, sheetsPerDay: 2, perSheet: 10, gaugeSize: 100, rewardRobux: 80, sound: true, voice: true, showReco: true, pin: null, setupDone: false },
+      settings: { lang: 'ko', level: 1, levelTarget: 5, levelBonus: 50, fullscreen: true, sheetsPerDay: 2, perSheet: 10, gaugeSize: 100, rewardRobux: 80, sound: true, voice: true, showReco: true, pin: null, setupDone: false },
       stars: { current: 0, total: 0 },
       days: {},
       rewards: [],
@@ -776,7 +781,7 @@ self.DIGIT_MODEL={"layers":[{"in":784,"out":256,"scale":0.0058071970000980406,"w
       todayDone: '오늘 할 일 끝! 최고야', practice: '더 연습하기 (별 없음)',
       gaugeTo: '{r} 로벅스까지', claim: '로벅스 받기!', claimLocked: '별을 다 모으면 열려요',
       weekTitle: '이번 주', days: ['월', '화', '수', '목', '금', '토', '일'],
-      calibBtn: '글씨 연습', parentBtn: '엄마 아빠',
+      calibBtn: '글씨 연습', parentBtn: '엄마 아빠', fullscreen: '전체화면',
       // 글씨 연습
       calibTitle: '글씨 연습', calibIntro: '숫자를 크게 써 주세요.\n별이가 네 글씨를 배울게!', calibGo: '좋아, 시작!',
       calibWrite: '숫자 {d}, 써 볼까?', calibSay: '{d}', calibNext: '다음', calibClear: '지우기',
@@ -808,6 +813,7 @@ self.DIGIT_MODEL={"layers":[{"in":784,"out":256,"scale":0.0058071970000980406,"w
       suggest: '최근 3일 정답률이 90% 이상이에요. {n}단계로 올려 볼까요?', suggestBtn: '올리기',
       setLevel: '문제 단계', setSheets: '하루 장수 (1장 = 10문제)', setGauge: '보상까지 별 개수', setRobux: '보상 로벅스',
       setSound: '효과음', setVoice: '읽어 주기', setReco: '읽은 숫자 보여 주기', setLang: '언어',
+      setFull: '전체화면', setFullNote: '아이가 처음 화면을 만지면 자동으로 꽉 찬 화면으로 바뀝니다', fullNow: '지금 전체화면',
       setPin: '비밀번호 바꾸기', backup: '백업 파일 저장', restore: '백업 불러오기', reset: '모든 기록 지우기',
       resetAsk: '정말 모든 기록을 지울까요?', saved: '저장했어요',
       wrSamples: '배운 글씨 {n}개', wrAcc: '연습 글씨 인식률 {p}%', wrAccNone: '인식률은 글씨가 15개 넘으면 보여요',
@@ -822,7 +828,7 @@ self.DIGIT_MODEL={"layers":[{"in":784,"out":256,"scale":0.0058071970000980406,"w
       todayDone: 'All done for today! Great job', practice: 'Extra practice (no stars)',
       gaugeTo: '{r} Robux goal', claim: 'Get Robux!', claimLocked: 'Fill the stars to unlock',
       weekTitle: 'This week', days: ['M', 'T', 'W', 'T', 'F', 'S', 'S'],
-      calibBtn: 'Writing practice', parentBtn: 'Parents',
+      calibBtn: 'Writing practice', parentBtn: 'Parents', fullscreen: 'Fullscreen',
       calibTitle: 'Writing practice', calibIntro: 'Write each number big.\nStarry will learn your handwriting!', calibGo: "OK, let's go!",
       calibWrite: 'Can you write {d}?', calibSay: '{d}', calibNext: 'Next', calibClear: 'Clear',
       calibDone: 'Done! Thank you', calibDoneSub: 'Starry learned {n} of your numbers', calibHome: 'Home',
@@ -850,6 +856,7 @@ self.DIGIT_MODEL={"layers":[{"in":784,"out":256,"scale":0.0058071970000980406,"w
       suggest: '90%+ correct for the last 3 days. Move up to level {n}?', suggestBtn: 'Move up',
       setLevel: 'Level', setSheets: 'Sheets per day (10 problems each)', setGauge: 'Stars for a reward', setRobux: 'Reward Robux',
       setSound: 'Sound', setVoice: 'Read aloud', setReco: 'Show what I read', setLang: 'Language',
+      setFull: 'Fullscreen', setFullNote: 'Goes fullscreen automatically on the first touch', fullNow: 'Now',
       setPin: 'Change PIN', backup: 'Save backup file', restore: 'Load backup', reset: 'Erase all records',
       resetAsk: 'Really erase all records?', saved: 'Saved',
       wrSamples: '{n} handwriting samples', wrAcc: 'Practice recognition {p}%', wrAccNone: 'Shown after 15 samples',
@@ -893,6 +900,7 @@ self.DIGIT_MODEL={"layers":[{"in":784,"out":256,"scale":0.0058071970000980406,"w
     pen: '<svg viewBox="0 0 24 24"><path d="M4 20l1.2-4.6L15.6 5a2 2 0 0 1 2.8 0l.6.6a2 2 0 0 1 0 2.8L8.6 18.8z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/><path d="M13.5 7l3.5 3.5" stroke="currentColor" stroke-width="2.2"/></svg>',
     eraser: '<svg viewBox="0 0 24 24"><path d="M8.5 20H20M4.8 14.6l8.8-8.8a2 2 0 0 1 2.8 0l2.8 2.8a2 2 0 0 1 0 2.8L12 18.6a4.8 4.8 0 0 1-6.8 0l-.4-.4a2.5 2.5 0 0 1 0-3.6z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/><path d="M8.6 10.8l5.6 5.6" stroke="currentColor" stroke-width="2.2"/></svg>',
     trash: '<svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V4.5h6V7M6.5 7l1 13h9l1-13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/></svg>',
+    full: '<svg viewBox="0 0 24 24"><path d="M4 9V4.6h4.6M20 9V4.6h-4.6M4 15v4.4h4.6M20 15v4.4h-4.6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     home: '<svg viewBox="0 0 24 24"><path d="M4 11.2 12 4l8 7.2" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M6.2 10.2V20h11.6v-9.8" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M10.2 20v-5.2h3.6V20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg>',
     back: '<svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     clock: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M12 7v5l3 2" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>',
@@ -1138,6 +1146,32 @@ self.DIGIT_MODEL={"layers":[{"in":784,"out":256,"scale":0.0058071970000980406,"w
   if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
   const t = (k, v) => I18n.t(S.settings.lang, k, v);
   const today = () => Logic.dayKey();
+  // ---------- 전체화면 ----------
+  function inFull() {
+    return !!document.fullscreenElement || window.matchMedia('(display-mode: fullscreen)').matches || window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  }
+  let fullTried = false;
+  function goFull() {
+    if (inFull()) return;
+    const el = document.documentElement;
+    const req = el.requestFullscreen || el.webkitRequestFullscreen;
+    if (!req) return;
+    try { const p = req.call(el, { navigationUI: 'hide' }); if (p && p.catch) p.catch(() => {}); } catch (e) { /* */ }
+  }
+  function exitFull() {
+    const ex = document.exitFullscreen || document.webkitExitFullscreen;
+    if (ex) { try { const p = ex.call(document); if (p && p.catch) p.catch(() => {}); } catch (e) { /* */ } }
+  }
+  function toggleFull() { if (inFull()) exitFull(); else goFull(); }
+  // 손가락으로 쓰는 기기에서는 첫 터치에 바로 꽉 찬 화면으로 (설정에서 끌 수 있음)
+  function armAutoFull() {
+    if (!S.settings.fullscreen) return;
+    const touch = window.matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window;
+    if (!touch || inFull() || fullTried) return;
+    const once = () => { fullTried = true; goFull(); };
+    document.addEventListener('pointerdown', once, { once: true });
+  }
+
   function syncFx() { FX.soundOn = S.settings.sound; FX.voiceOn = S.settings.voice; FX.lang = S.settings.lang; document.documentElement.lang = S.settings.lang; document.title = t('appName'); }
   syncFx();
 
@@ -1283,7 +1317,7 @@ self.DIGIT_MODEL={"layers":[{"in":784,"out":256,"scale":0.0058071970000980406,"w
     const bubble = Logic.canClaim(S) ? t('heroReady') : dayDone ? t('heroMore', { n: Math.max(0, st.gaugeSize - S.stars.current) }) : t('hello');
     const el = mount(h(`<div class="screen home">
       <header class="topbar"><div class="brand">${FX.mascot(dayDone ? 'happy' : '')}<span>${t('appName')}</span></div>
-        <div class="top-actions"><button class="icon-btn bang" data-act="calib" aria-label="${t('calibBtn')}">!</button><button class="icon-btn lang" data-act="lang">${t('langBtn')}</button><button class="icon-btn" data-act="parent" aria-label="${t('parentBtn')}">${FX.icons.lock}</button></div></header>
+        <div class="top-actions"><button class="icon-btn" data-act="full" aria-label="${t('fullscreen')}">${FX.icons.full}</button><button class="icon-btn bang" data-act="calib" aria-label="${t('calibBtn')}">!</button><button class="icon-btn lang" data-act="lang">${t('langBtn')}</button><button class="icon-btn" data-act="parent" aria-label="${t('parentBtn')}">${FX.icons.lock}</button></div></header>
       <div class="home-body">
         <div class="area-main">
           <div class="card hero">${FX.mascot(dayDone ? 'happy' : '')}<div class="bubble">${bubble}</div></div>
@@ -1330,6 +1364,7 @@ self.DIGIT_MODEL={"layers":[{"in":784,"out":256,"scale":0.0058071970000980406,"w
       else if (a === 'lang') { S.settings.lang = S.settings.lang === 'ko' ? 'en' : 'ko'; save(); syncFx(); home(); }
       else if (a === 'parent') { if (!S.settings.pin) setPinFlow(parent); else askPin(t('pinEnter'), parent); }
       else if (a === 'claim') claimFlow();
+      else if (a === 'full') toggleFull();
       else if (a === 'nextLevel') { S.settings.level = Math.min(8, S.settings.level + 1); save(); FX.sound('level'); home(); }
     });
   }
@@ -1692,6 +1727,7 @@ self.DIGIT_MODEL={"layers":[{"in":784,"out":256,"scale":0.0058071970000980406,"w
         <div class="set-row"><span>${t('setSound')}</span>${tog('sound')}</div>
         <div class="set-row"><span>${t('setVoice')}</span>${tog('voice')}</div>
         <div class="set-row"><span>${t('setReco')}</span>${tog('showReco')}</div>
+        <div class="set-row"><span>${t('setFull')}<br><small class="note">${t('setFullNote')}</small></span><span style="display:flex;gap:8px;align-items:center">${tog('fullscreen')}<button class="pbtn" data-do="full">${t('fullNow')}</button></span></div>
         <div class="set-row"><span>${t('setPin')}</span><button class="pbtn" data-do="pin">${t('setPin')}</button></div>
         <div class="set-row"><span>${t('backup')}</span><span style="display:flex;gap:8px"><button class="pbtn" data-do="backup">${t('backup')}</button><label class="pbtn">${t('restore')}<input type="file" accept=".json,application/json" data-do="restore" hidden></label></span></div>
         <div class="set-row"><span>${t('reset')}</span><button class="pbtn danger" data-do="reset">${t('reset')}</button></div>
@@ -1727,6 +1763,7 @@ self.DIGIT_MODEL={"layers":[{"in":784,"out":256,"scale":0.0058071970000980406,"w
       else if (d === 'backup') { const blob = new Blob([JSON.stringify(S)], { type: 'application/json' }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `starmath-backup-${today()}.json`; a.click(); }
       else if (d === 'reset') confirmBox(t('resetAsk'), () => { const keep = { pin: st.pin }; S = Logic.defaultState(); S.settings.pin = keep.pin; S.settings.setupDone = true; save(); R.setSamples([]); shownStars = 0; sessionStorage.setItem('sm.shown', 0); parent('records'); });
       else if (d === 'calib') calib({ first: false });
+      else if (d === 'full') toggleFull();
       else if (d === 'clearSamples') confirmBox(t('wrClearAsk'), () => { S.samples = []; save(); R.setSamples([]); parent('writing'); });
     });
     el.addEventListener('change', (e) => {
@@ -1737,6 +1774,8 @@ self.DIGIT_MODEL={"layers":[{"in":784,"out":256,"scale":0.0058071970000980406,"w
 
   // ---------- 시작 ----------
   window.__SM = { get S() { return S; }, R, home, sheet, calib, parent, save, Logic };
+  armAutoFull();
+  document.addEventListener('fullscreenchange', () => { const b = document.querySelector('[data-act="full"]'); if (b) b.style.display = inFull() ? 'none' : ''; });
   if (!S.settings.setupDone) setup(); else home();
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) navigator.serviceWorker.register('sw.js').catch(() => {});
 })();
