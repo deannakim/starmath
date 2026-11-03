@@ -366,6 +366,11 @@ table.rec td { padding: 10px 6px; border-bottom: 1px solid #f2ede2; }
 .topbar { padding-top: max(18px, env(safe-area-inset-top)); }
 .screen { height: 100%; }
 
+/* 전체화면 버튼 (글자 포함, 위쪽 오른쪽 고정) */
+.full-btn, .full-fixed { width: auto; min-width: 0; padding: 6px 14px; border-radius: 18px; flex-direction: column; gap: 2px; font-size: 13px; color: var(--sub); }
+.full-btn svg, .full-fixed svg { width: 24px; height: 24px; }
+.full-fixed { position: absolute; top: max(16px, env(safe-area-inset-top)); right: 16px; z-index: 60; background: #fff; }
+
 </style>
 </head>
 <body>
@@ -782,6 +787,7 @@ self.DIGIT_MODEL={"layers":[{"in":784,"out":256,"scale":0.0058071970000980406,"w
       gaugeTo: '{r} 로벅스까지', claim: '로벅스 받기!', claimLocked: '별을 다 모으면 열려요',
       weekTitle: '이번 주', days: ['월', '화', '수', '목', '금', '토', '일'],
       calibBtn: '글씨 연습', parentBtn: '엄마 아빠', fullscreen: '전체화면',
+      fullHint: '오른쪽 위 [전체화면]을 누르면 화면이 꽉 차요',
       // 글씨 연습
       calibTitle: '글씨 연습', calibIntro: '숫자를 크게 써 주세요.\n별이가 네 글씨를 배울게!', calibGo: '좋아, 시작!',
       calibWrite: '숫자 {d}, 써 볼까?', calibSay: '{d}', calibNext: '다음', calibClear: '지우기',
@@ -829,6 +835,7 @@ self.DIGIT_MODEL={"layers":[{"in":784,"out":256,"scale":0.0058071970000980406,"w
       gaugeTo: '{r} Robux goal', claim: 'Get Robux!', claimLocked: 'Fill the stars to unlock',
       weekTitle: 'This week', days: ['M', 'T', 'W', 'T', 'F', 'S', 'S'],
       calibBtn: 'Writing practice', parentBtn: 'Parents', fullscreen: 'Fullscreen',
+      fullHint: 'Tap [Fullscreen] at the top right to fill the screen',
       calibTitle: 'Writing practice', calibIntro: 'Write each number big.\nStarry will learn your handwriting!', calibGo: "OK, let's go!",
       calibWrite: 'Can you write {d}?', calibSay: '{d}', calibNext: 'Next', calibClear: 'Clear',
       calibDone: 'Done! Thank you', calibDoneSub: 'Starry learned {n} of your numbers', calibHome: 'Home',
@@ -1256,7 +1263,10 @@ self.DIGIT_MODEL={"layers":[{"in":784,"out":256,"scale":0.0058071970000980406,"w
 
   // ---------- 처음 설정 ----------
   function setup() {
-    mount(h(`<div class="screen" style="justify-content:center;align-items:center"><div style="width:220px;height:220px;opacity:.5">${FX.mascot('happy')}</div></div>`));
+    mount(h(`<div class="screen" style="justify-content:center;align-items:center">
+      <button class="icon-btn full-fixed" data-act="full" aria-label="${t('fullscreen')}">${FX.icons.full}<span>${t('fullscreen')}</span></button>
+      <div style="width:220px;height:220px;opacity:.5">${FX.mascot('happy')}</div></div>`));
+    const fb = $('[data-act="full"]'); if (fb) fb.onclick = () => toggleFull();
     const ov = modal(`${FX.mascot('happy')}<h2>${t('appName')}</h2><p>${t('setupPin')}</p><div class="row"><button class="btn yellow big" data-go>${t('setupNext')}</button></div>`);
     $('[data-go]', ov).onclick = () => { FX.sound('tap'); ov.remove(); setPinFlow(() => chooseLevel(() => { S.settings.setupDone = true; save(); calib({ first: true }); }), t('setupPin')); };
   }
@@ -1317,7 +1327,7 @@ self.DIGIT_MODEL={"layers":[{"in":784,"out":256,"scale":0.0058071970000980406,"w
     const bubble = Logic.canClaim(S) ? t('heroReady') : dayDone ? t('heroMore', { n: Math.max(0, st.gaugeSize - S.stars.current) }) : t('hello');
     const el = mount(h(`<div class="screen home">
       <header class="topbar"><div class="brand">${FX.mascot(dayDone ? 'happy' : '')}<span>${t('appName')}</span></div>
-        <div class="top-actions"><button class="icon-btn" data-act="full" aria-label="${t('fullscreen')}">${FX.icons.full}</button><button class="icon-btn bang" data-act="calib" aria-label="${t('calibBtn')}">!</button><button class="icon-btn lang" data-act="lang">${t('langBtn')}</button><button class="icon-btn" data-act="parent" aria-label="${t('parentBtn')}">${FX.icons.lock}</button></div></header>
+        <div class="top-actions"><button class="icon-btn full-btn" data-act="full" aria-label="${t('fullscreen')}">${FX.icons.full}<span>${t('fullscreen')}</span></button><button class="icon-btn bang" data-act="calib" aria-label="${t('calibBtn')}">!</button><button class="icon-btn lang" data-act="lang">${t('langBtn')}</button><button class="icon-btn" data-act="parent" aria-label="${t('parentBtn')}">${FX.icons.lock}</button></div></header>
       <div class="home-body">
         <div class="area-main">
           <div class="card hero">${FX.mascot(dayDone ? 'happy' : '')}<div class="bubble">${bubble}</div></div>
@@ -1775,6 +1785,9 @@ self.DIGIT_MODEL={"layers":[{"in":784,"out":256,"scale":0.0058071970000980406,"w
   // ---------- 시작 ----------
   window.__SM = { get S() { return S; }, R, home, sheet, calib, parent, save, Logic };
   armAutoFull();
+  if (!inFull() && !localStorage.getItem('sm.fullHint')) {
+    setTimeout(() => { try { localStorage.setItem('sm.fullHint', '1'); toast(t('fullHint')); } catch (e) { /* */ } }, 1600);
+  }
   document.addEventListener('fullscreenchange', () => { const b = document.querySelector('[data-act="full"]'); if (b) b.style.display = inFull() ? 'none' : ''; });
   if (!S.settings.setupDone) setup(); else home();
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) navigator.serviceWorker.register('sw.js').catch(() => {});

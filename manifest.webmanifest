@@ -1,7 +1,7 @@
 {
   "name": "별모아 연산",
   "short_name": "별모아 연산",
-  "start_url": "./index.html",
+  "start_url": "./index.html?v=5",
   "scope": "./",
   "display": "fullscreen",
   "display_override": ["fullscreen", "standalone"],
